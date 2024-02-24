@@ -23,12 +23,19 @@ class TaskNote(QWidget):
         # Set size policy for text edit to allow vertical expansion
         self.text_edit.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
-        # Hide the frame and border, and show a plain text (no editing) appearance
-        self.text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # Show the scrollbar even in read-only mode
+        self.text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Set a style sheet to make QTextEdit look like a label
-        self.text_edit.setStyleSheet("border: none; background-color: transparent;")
+        style_sheet = """
+            QTextEdit {
+                border: none;
+                background-color: transparent;
+                color: black;
+            }
+        """
+        self.text_edit.setStyleSheet(style_sheet)
 
         self.check_box.setChecked(self.extract_checked_status())
 
@@ -72,12 +79,30 @@ class TaskNote(QWidget):
             self.save_task()
 
     def start_editing(self):
+        # Change style for editing
+        style_sheet_editing = """
+            QTextEdit {
+                border: 1px solid gray;
+                background-color: white;
+                color: black;
+            }
+        """
+        self.text_edit.setStyleSheet(style_sheet_editing)
         self.text_edit.setReadOnly(False)
         self.edit_button.setText("Save")
         self.edit_button.clicked.disconnect(self.toggle_edit)
         self.edit_button.clicked.connect(self.save_task)
 
     def save_task(self):
+        # Restore original style after saving
+        style_sheet_original = """
+            QTextEdit {
+                border: none;
+                background-color: transparent;
+                color: black;
+            }
+        """
+        self.text_edit.setStyleSheet(style_sheet_original)
         new_text = self.text_edit.toPlainText()
         self.text_edit.setReadOnly(True)
         self.edit_button.setText("Edit")
