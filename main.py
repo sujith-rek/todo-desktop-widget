@@ -5,7 +5,7 @@ from TaskWindow import TaskWindow
 
 app = QApplication(sys.argv)
 
-settings = QSettings("MyCompany", "MyApp")
+settings = QSettings("TaskManager", "TaskManager")
 
 selected_folder = settings.value("selected_folder", defaultValue="")
 if not selected_folder:
