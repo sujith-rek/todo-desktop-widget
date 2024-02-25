@@ -1,5 +1,5 @@
 import os
-from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QScrollArea, QApplication
 from TaskNote import TaskNote
 
 
@@ -17,12 +17,9 @@ class TaskWindow(QWidget):
 
         self.setWindowTitle("To-Do List")
 
-        if self.meta:
-            self.ax, self.ay, self.awidth, self.aheight = map(
-                int, self.meta.split(self.META_DELIMITER))
-            self.setGeometry(self.ax, self.ay, self.awidth, self.aheight)
-        else:
-            self.setGeometry(100, 100, 400, 400)
+        # Set initial geometry or use defaults
+        self.ax, self.ay, self.awidth, self.aheight = map(
+            int, self.meta.split(self.META_DELIMITER)) if self.meta else (100, 100, 400, 400)
 
         self.layout = QVBoxLayout()
 
@@ -38,9 +35,19 @@ class TaskWindow(QWidget):
 
         self.layout.addLayout(self.h_layout)
 
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+
+        self.scroll_content = QWidget()
+        self.scroll_content.setLayout(self.layout)
+
+        self.scroll_area.setWidget(self.scroll_content)
+
         self.init_task_notes()
 
-        self.setLayout(self.layout)
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(self.scroll_area)
+        self.setLayout(main_layout)
 
     def load_data(self):
         self.tasks = self.load_file(self.FILE_NAME)
@@ -62,17 +69,32 @@ class TaskWindow(QWidget):
         for task_note in self.task_notes:
             self.layout.addWidget(task_note)
 
-    
+        self.adjust_window_size()
+
     def delete_task_note(self, task_note):
         self.layout.removeWidget(task_note)
         task_note.deleteLater()
         self.task_notes.remove(task_note)
+        self.adjust_window_size()
 
+    def adjust_window_size(self):
+        screen_geometry = QApplication.primaryScreen().geometry()
+
+        # Ensure window size is within screen size
+        if self.aheight > screen_geometry.height():
+            self.aheight = screen_geometry.height()
+
+        if self.awidth > screen_geometry.width():
+            self.awidth = screen_geometry.width()
+
+        # Set new geometry
+        self.setGeometry(self.ax, self.ay, self.awidth, self.aheight)
 
     def add_task(self):
         task_note = TaskNote()
         self.task_notes.append(task_note)
         self.layout.addWidget(task_note)
+        self.adjust_window_size()
 
     def save_before_close(self):
         self.save_meta()
@@ -101,3 +123,5 @@ class TaskWindow(QWidget):
         with open(os.path.join(self.FILE_LOCATION, self.FILE_NAME), "w") as file:
             file.write(self.TASK_DELIMITER.join(
                 [task.get_task() for task in task_notes if task.get_task()]))
+
+
