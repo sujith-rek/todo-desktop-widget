@@ -3,12 +3,13 @@ from PyQt6.QtCore import Qt
 
 class TaskNote(QWidget):
 
-    def __init__(self, task=""):
+    def __init__(self, task="", delete_callback=None):
         super().__init__()
 
         self.CHECK_DELIMITER = "!@#"
         self.task = task
         self.checked = 0
+        self.delete_callback = delete_callback
         self.setup_ui()
 
     def setup_ui(self):
@@ -47,12 +48,12 @@ class TaskNote(QWidget):
 
         self.edit_button = QPushButton("Edit")
         self.h_layout.addWidget(self.edit_button)
-        # self.layout.addWidget(self.edit_button)
 
         self.delete_button = QPushButton("Delete")
         self.h_layout.addWidget(self.delete_button)
 
         self.edit_button.clicked.connect(self.toggle_edit)
+        self.delete_button.clicked.connect(self.delete_task)
         self.check_box.stateChanged.connect(self.mark_complete)
 
         self.layout.addLayout(self.h_layout)
@@ -111,6 +112,9 @@ class TaskNote(QWidget):
         self.edit_button.clicked.disconnect(self.save_task)
         self.edit_button.clicked.connect(self.toggle_edit)
 
+    def delete_task(self):
+        if self.delete_callback:
+            self.delete_callback(self)
 
     def get_task(self):
         return f"{self.CHECK_DELIMITER}{self.checked}{self.CHECK_DELIMITER}{self.text_edit.toPlainText()}"

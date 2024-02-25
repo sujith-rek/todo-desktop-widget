@@ -57,10 +57,17 @@ class TaskWindow(QWidget):
             return ""
 
     def init_task_notes(self):
-        self.task_notes = [TaskNote(task) for task in self.tasks.split(
+        self.task_notes = [TaskNote(task, self.delete_task_note) for task in self.tasks.split(
             self.TASK_DELIMITER) if task]
         for task_note in self.task_notes:
             self.layout.addWidget(task_note)
+
+    
+    def delete_task_note(self, task_note):
+        self.layout.removeWidget(task_note)
+        task_note.deleteLater()
+        self.task_notes.remove(task_note)
+
 
     def add_task(self):
         task_note = TaskNote()
