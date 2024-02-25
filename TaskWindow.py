@@ -1,5 +1,6 @@
 import os
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QScrollArea, QApplication
+from PyQt6.QtCore import Qt
 from TaskNote import TaskNote
 
 
@@ -21,10 +22,11 @@ class TaskWindow(QWidget):
         self.ax, self.ay, self.awidth, self.aheight = map(
             int, self.meta.split(self.META_DELIMITER)) if self.meta else (100, 100, 400, 400)
 
-        self.layout = QVBoxLayout()
+        # Create the main layout
+        main_layout = QVBoxLayout(self)
 
+        # Create a layout for the fixed content
         self.h_layout = QHBoxLayout()
-
         add_button = QPushButton("Add Task")
         add_button.clicked.connect(self.add_task)
         self.h_layout.addWidget(add_button)
@@ -33,21 +35,35 @@ class TaskWindow(QWidget):
         save_button.clicked.connect(self.save_tasks)
         self.h_layout.addWidget(save_button)
 
-        self.layout.addLayout(self.h_layout)
+        # Add the fixed layout to the main layout
+        main_layout.addLayout(self.h_layout)
 
+        # Create a layout for the scrollable content
+        self.layout = QVBoxLayout()
+
+        style_sheet = """
+            QScrollArea {
+                border: none;
+            }
+        """
+
+        # Create a scroll area and set the scrollable layout as its widget
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setWidgetResizable(True)
+        scrollable_widget = QWidget()
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scrollable_widget.setLayout(self.layout)
+        self.scroll_area.setWidget(scrollable_widget)
+        self.scroll_area.setStyleSheet(style_sheet)
 
-        self.scroll_content = QWidget()
-        self.scroll_content.setLayout(self.layout)
 
-        self.scroll_area.setWidget(self.scroll_content)
+        # Add the scroll area to the main layout
+        main_layout.addWidget(self.scroll_area)
+
+        # Set the main layout of the window
+        self.setLayout(main_layout)
 
         self.init_task_notes()
-
-        main_layout = QVBoxLayout(self)
-        main_layout.addWidget(self.scroll_area)
-        self.setLayout(main_layout)
 
     def load_data(self):
         self.tasks = self.load_file(self.FILE_NAME)
@@ -91,7 +107,7 @@ class TaskWindow(QWidget):
         self.setGeometry(self.ax, self.ay, self.awidth, self.aheight)
 
     def add_task(self):
-        task_note = TaskNote()
+        task_note = TaskNote(delete_callback=self.delete_task_note)
         self.task_notes.append(task_note)
         self.layout.addWidget(task_note)
         self.adjust_window_size()

@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QWidget, QCheckBox, QTextEdit, QHBoxLayout, QSizePolicy
 from PyQt6.QtCore import Qt
 
+
 class TaskNote(QWidget):
 
     def __init__(self, task="", delete_callback=None):
@@ -12,6 +13,8 @@ class TaskNote(QWidget):
         self.delete_callback = delete_callback
         self.setup_ui()
 
+        self.setFixedHeight(100)
+
     def setup_ui(self):
         self.layout = QVBoxLayout()
 
@@ -21,10 +24,13 @@ class TaskNote(QWidget):
         self.text_edit = QTextEdit(self.extract_task_label())
         self.text_edit.setReadOnly(True)
 
-        self.text_edit.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        self.text_edit.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
-        self.text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.text_edit.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.text_edit.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         style_sheet = """
             QTextEdit {
