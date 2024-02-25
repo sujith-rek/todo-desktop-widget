@@ -20,14 +20,11 @@ class TaskNote(QWidget):
         self.text_edit = QTextEdit(self.extract_task_label())
         self.text_edit.setReadOnly(True)
 
-        # Set size policy for text edit to allow vertical expansion
         self.text_edit.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
-        # Show the scrollbar even in read-only mode
         self.text_edit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.text_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        # Set a style sheet to make QTextEdit look like a label
         style_sheet = """
             QTextEdit {
                 border: none;
@@ -39,25 +36,32 @@ class TaskNote(QWidget):
 
         self.check_box.setChecked(self.extract_checked_status())
 
-        checkbox_fixed_width = int(self.width() * 0.1)
+        checkbox_fixed_width = int(self.width() * 0.025)
         self.check_box.setFixedWidth(checkbox_fixed_width)
 
         self.task_layout.addWidget(self.check_box)
         self.task_layout.addWidget(self.text_edit)
 
         self.layout.addLayout(self.task_layout)
+        self.h_layout = QHBoxLayout()
 
         self.edit_button = QPushButton("Edit")
-        self.layout.addWidget(self.edit_button)
+        self.h_layout.addWidget(self.edit_button)
+        # self.layout.addWidget(self.edit_button)
+
+        self.delete_button = QPushButton("Delete")
+        self.h_layout.addWidget(self.delete_button)
 
         self.edit_button.clicked.connect(self.toggle_edit)
         self.check_box.stateChanged.connect(self.mark_complete)
 
+        self.layout.addLayout(self.h_layout)
+
         self.setLayout(self.layout)
 
     def on_resize(self, width, height):
-        self.text_edit.setFixedWidth(width - int(width * 0.1))
-        self.check_box.setFixedWidth(int(width * 0.1))
+        self.text_edit.setFixedWidth(width - int(width * 0.025))
+        self.check_box.setFixedWidth(int(width * 0.025))
 
     def extract_task_label(self):
         parts = self.task.split(self.CHECK_DELIMITER)
@@ -79,7 +83,6 @@ class TaskNote(QWidget):
             self.save_task()
 
     def start_editing(self):
-        # Change style for editing
         style_sheet_editing = """
             QTextEdit {
                 border: 1px solid gray;
@@ -94,7 +97,6 @@ class TaskNote(QWidget):
         self.edit_button.clicked.connect(self.save_task)
 
     def save_task(self):
-        # Restore original style after saving
         style_sheet_original = """
             QTextEdit {
                 border: none;
@@ -108,6 +110,7 @@ class TaskNote(QWidget):
         self.edit_button.setText("Edit")
         self.edit_button.clicked.disconnect(self.save_task)
         self.edit_button.clicked.connect(self.toggle_edit)
+
 
     def get_task(self):
         return f"{self.CHECK_DELIMITER}{self.checked}{self.CHECK_DELIMITER}{self.text_edit.toPlainText()}"
