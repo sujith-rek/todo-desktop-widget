@@ -56,7 +56,6 @@ class TaskWindow(QWidget):
         self.scroll_area.setWidget(scrollable_widget)
         self.scroll_area.setStyleSheet(style_sheet)
 
-
         # Add the scroll area to the main layout
         main_layout.addWidget(self.scroll_area)
 
@@ -139,5 +138,3 @@ class TaskWindow(QWidget):
         with open(os.path.join(self.FILE_LOCATION, self.FILE_NAME), "w") as file:
             file.write(self.TASK_DELIMITER.join(
                 [task.get_task() for task in task_notes if task.get_task()]))
-
-
